@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
+import java.util.*
 
 plugins {
     id("org.springframework.boot") version "3.0.5"
@@ -8,7 +10,6 @@ plugins {
 }
 
 group = "com.eden.gallery"
-version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
@@ -17,18 +18,24 @@ configurations {
     }
 }
 
+var versions = Properties()
+FileInputStream(file("versions.properties")).use {
+    versions.load(it)
+}
+
 repositories {
     mavenCentral()
 }
 
+version = "${versions["app"]}"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jsoup:jsoup:1.15.4")
-    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
+    implementation("org.jsoup:jsoup:${versions["jsoup"]}")
+    implementation("org.apache.logging.log4j:log4j-api:${versions["log4j"]}")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:${versions["log4jKotlin"]}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

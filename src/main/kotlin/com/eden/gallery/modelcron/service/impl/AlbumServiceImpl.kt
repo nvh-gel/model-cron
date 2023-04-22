@@ -8,29 +8,45 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * Implementation for album service.
+ */
 @Service
 class AlbumServiceImpl(
     @Autowired val albumRepository: AlbumRepository,
 ) : AlbumService, Logging {
 
+    /**
+     * Create an album from request data.
+     */
     @Transactional(readOnly = false)
-    override fun createAlbum(request: Album): String {
+    override fun createAlbum(album: Album): Boolean {
 
-        val existing = albumRepository.existsByName(request.name)
+        val existing = albumRepository.existsByName(album.name)
         return if (!existing) {
-            logger.info("creating album: ${request.name}")
-            albumRepository.save(request)
-            request.id.toString()
+            val created = albumRepository.save(album)
+            logger.info("creating album: ${created.name}")
+            true
         } else {
-            logger.info("already exist album: ${request.name}")
-            request.name
+            logger.info("already exist album: ${album.name}")
+            false
         }
     }
 
-    override fun createAlbum(request: List<Album>): String {
+    /**
+     * Create albums from list of data.
+     */
+    @Transactional(readOnly = false)
+    override fun createAlbum(albums: List<Album>): Boolean {
 
-        request.stream().forEach(this::createAlbum)
-        logger.info("completed")
-        return "Success"
+        val names = albums.map(Album::name).toList()
+        val existing = albumRepository.findAllByNameIn(names).map(Album::name).toList()
+        logger.info("already exist: $existing")
+
+        val toCreate = albums.filter { a -> !existing.contains(a.name) }.toList()
+        val created = albumRepository.saveAll(toCreate).map(Album::name).toList()
+        logger.info("created albums: $created")
+
+        return true
     }
 }

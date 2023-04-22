@@ -2,9 +2,18 @@ package com.eden.gallery.modelcron.service
 
 import com.eden.gallery.modelcron.document.Tag
 
+/**
+ * Service for tags handling.
+ */
 interface TagService {
 
-    fun createTag(tag: Tag): String
+    /**
+     * Create a tag from request.
+     */
+    fun createTag(tag: Tag): Boolean
 
-    fun createTag(tags: List<Tag>): String
+    /**
+     * Create multiple tags from a list.
+     */
+    fun createTag(tags: Set<Tag>): Boolean
 }
