@@ -17,4 +17,5 @@ class Album(
     val url: String = "",
     val thumbnail: String = "",
     val tags: List<String> = ArrayList(),
+    val download: List<String> = ArrayList(),
 )

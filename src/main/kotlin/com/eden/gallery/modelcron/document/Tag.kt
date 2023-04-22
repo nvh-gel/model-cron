@@ -11,11 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 @Document
 class Tag(
 
-    @Id
-    val id: ObjectId = ObjectId(),
-    val tag: String = "",
-    val url: String = "",
-    val publisher: Boolean = false,
+        @Id
+        val id: ObjectId = ObjectId(),
+        val tag: String = "",
+        val url: String = "",
+        val publisher: Boolean = false,
+        val category: Boolean = false,
 ) {
 
     /**
