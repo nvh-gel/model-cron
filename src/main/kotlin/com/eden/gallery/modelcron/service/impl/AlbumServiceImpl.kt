@@ -25,7 +25,7 @@ class AlbumServiceImpl(
         val existing = albumRepository.existsByName(album.name)
         return if (!existing) {
             val created = albumRepository.save(album)
-            logger.info("creating album: ${created.name}")
+            logger.info("created album: ${created.name}")
             true
         } else {
             logger.info("already exist album: ${album.name}")
@@ -45,7 +45,7 @@ class AlbumServiceImpl(
 
         val toCreate = albums.filter { a -> !existing.contains(a.name) }.toList()
         val created = albumRepository.saveAll(toCreate).map(Album::name).toList()
-        logger.info("created albums: $created")
+        logger.info("created ${created.size} albums: $created")
 
         return true
     }

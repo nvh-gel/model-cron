@@ -26,8 +26,8 @@ class TagServiceImpl(
 
         val exist: Boolean = tagRepository.existsByTag(tag.tag)
         return if (!exist) {
-            logger.info("creating tag: ${tag.tag}")
             tagRepository.save(tag)
+            logger.info("created tag: ${tag.tag}")
             true
         } else {
             logger.info("already exist tag: ${tag.tag}")
@@ -47,7 +47,7 @@ class TagServiceImpl(
 
         val toCreate = tags.filter { t -> !existingTags.contains(t.tag) }.toSet()
         val created = tagRepository.saveAll(toCreate).map(Tag::tag).toList()
-        logger.info("created tags: $created")
+        logger.info("created ${created.size} tags: $created")
 
         return true
     }

@@ -46,7 +46,7 @@ class CrawlServiceImpl(
      */
     override fun convertTagsToModels(size: Int): Boolean {
 
-        val tags = tagService.findModelTags(1, size)
+        val tags = tagService.findModelTags(0, size)
         if (tags.isNotEmpty()) {
             logger.info("converting ${tags.size} tags")
             val models = tags.map { tag: Tag -> Model(name = tag.tag, url = tag.url) }.toList()
