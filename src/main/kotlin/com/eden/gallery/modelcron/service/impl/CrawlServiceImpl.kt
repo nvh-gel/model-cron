@@ -1,9 +1,11 @@
 package com.eden.gallery.modelcron.service.impl
 
 import com.eden.gallery.modelcron.document.Album
+import com.eden.gallery.modelcron.document.Model
 import com.eden.gallery.modelcron.document.Tag
 import com.eden.gallery.modelcron.service.AlbumService
 import com.eden.gallery.modelcron.service.CrawlService
+import com.eden.gallery.modelcron.service.ModelService
 import com.eden.gallery.modelcron.service.TagService
 import org.apache.logging.log4j.kotlin.Logging
 import org.jsoup.Jsoup
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service
 class CrawlServiceImpl(
     @Autowired val albumService: AlbumService,
     @Autowired val tagService: TagService,
+    @Autowired val modelService: ModelService,
 ) : CrawlService, Logging {
 
     /**
@@ -36,6 +39,26 @@ class CrawlServiceImpl(
         tagService.createTag(tags)
 
         return true
+    }
+
+    /**
+     * Convert crawled tags to models
+     */
+    override fun convertTagsToModels(size: Int): Boolean {
+
+        val tags = tagService.findModelTags(1, size)
+        if (tags.isNotEmpty()) {
+            logger.info("converting ${tags.size} tags")
+            val models = tags.map { tag: Tag -> Model(name = tag.tag, url = tag.url) }.toList()
+            modelService.saveAll(models)
+
+            tags.forEach { tag: Tag -> tag.converted = true }
+            tagService.saveAll(tags)
+
+            return true
+        }
+        logger.info("no tag to convert")
+        return false
     }
 
     /**

@@ -16,4 +16,14 @@ interface TagService {
      * Create multiple tags from a list.
      */
     fun createTag(tags: Set<Tag>): Boolean
+
+    /**
+     * Find all model tags by paging.
+     */
+    fun findModelTags(page: Int, size: Int): List<Tag>
+
+    /**
+     * Update a list of tags.
+     */
+    fun saveAll(tags: List<Tag>): Boolean
 }

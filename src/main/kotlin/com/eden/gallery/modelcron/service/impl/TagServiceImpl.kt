@@ -5,6 +5,8 @@ import com.eden.gallery.modelcron.repository.TagRepository
 import com.eden.gallery.modelcron.service.TagService
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -48,5 +50,26 @@ class TagServiceImpl(
         logger.info("created tags: $created")
 
         return true
+    }
+
+    /**
+     * Update a list of tags.
+     */
+    @Transactional(readOnly = false)
+    override fun saveAll(tags: List<Tag>): Boolean {
+
+        tagRepository.saveAll(tags)
+        return true
+    }
+
+    /**
+     * Find a list of model tags by paging.
+     */
+    override fun findModelTags(page: Int, size: Int): List<Tag> {
+
+        val pageable = PageRequest.of(page, size, Sort.Direction.ASC, "id")
+        return tagRepository
+            .findAllByPublisherIsFalseAndCategoryIsFalseAndConvertedIsNot(true, pageable)
+            .toList()
     }
 }

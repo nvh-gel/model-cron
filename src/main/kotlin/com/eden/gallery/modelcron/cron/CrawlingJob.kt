@@ -27,7 +27,7 @@ class CrawlingJob(
     /**
      * Crawl mrcong.com for data, run every 15 secs.
      */
-    @Scheduled(fixedRate = 15, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
     fun crawlFullSize() {
 
         val currentPageConfig = configService.findConfig(ConfigKey.CURR_PAGE.name)
@@ -36,10 +36,20 @@ class CrawlingJob(
             maxPageConfig = configService.findConfig(ConfigKey.MAX_PAGE.name)
             maxPage = maxPageConfig?.value?.toInt() ?: 1
         }
-        logger.info(LocalDateTime.now().toString())
+        logger.info("job craw full run at: ${LocalDateTime.now()}")
         if (currentPage <= maxPage) {
             crawlService.crawlSite(site, currentPage)
             configService.saveConfig(ConfigKey.CURR_PAGE.name, (currentPage + 1).toString())
         }
+    }
+
+    /**
+     * Converted classify tags to model data.
+     */
+    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    fun convertTagToModel() {
+
+        logger.info("job convert tags to model run at: ${LocalDateTime.now()}")
+        crawlService.convertTagsToModels(200)
     }
 }
