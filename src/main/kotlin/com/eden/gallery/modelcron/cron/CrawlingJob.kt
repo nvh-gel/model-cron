@@ -1,9 +1,6 @@
 package com.eden.gallery.modelcron.cron
 
-import com.eden.gallery.modelcron.document.Config
-import com.eden.gallery.modelcron.service.ConfigService
 import com.eden.gallery.modelcron.service.CrawlService
-import com.eden.gallery.modelcron.utils.ConfigKey
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,39 +14,38 @@ import java.util.concurrent.TimeUnit
 @Component
 class CrawlingJob(
     @Autowired val crawlService: CrawlService,
-    @Autowired val configService: ConfigService,
 ) : Logging {
 
     private final val site = "https://mrcong.com/page/"
-    var maxPageConfig: Config? = null
-    var maxPage: Int = 1
 
     /**
      * Crawl mrcong.com for data, run every 15 secs.
      */
-    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
     fun crawlFullSize() {
 
-        val currentPageConfig = configService.findConfig(ConfigKey.CURR_PAGE.name)
-        val currentPage = currentPageConfig?.value?.toInt() ?: 1
-        if (maxPageConfig == null) {
-            maxPageConfig = configService.findConfig(ConfigKey.MAX_PAGE.name)
-            maxPage = maxPageConfig?.value?.toInt() ?: 1
-        }
         logger.info("job craw full run at: ${LocalDateTime.now()}")
-        if (currentPage <= maxPage) {
-            crawlService.crawlSite(site, currentPage)
-            configService.saveConfig(ConfigKey.CURR_PAGE.name, (currentPage + 1).toString())
-        }
+        val pages = arrayListOf(1, 2, 3)
+        pages.forEach { page -> crawlService.crawlSite(site, page) }
     }
 
     /**
      * Converted classify tags to model data.
      */
-    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     fun convertTagToModel() {
 
         logger.info("job convert tags to model run at: ${LocalDateTime.now()}")
         crawlService.convertTagsToModels(200)
+    }
+
+    /**
+     * Crawl model images to database.
+     */
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    fun crawlModelImages() {
+
+        logger.info("job crawl model images run at: ${LocalDateTime.now()}")
+        crawlService.crawlForModelImage()
     }
 }

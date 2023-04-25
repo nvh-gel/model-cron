@@ -13,6 +13,8 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.util.StringUtils
+import java.net.URL
 
 /**
  * Implementation for crawling service
@@ -30,7 +32,7 @@ class CrawlServiceImpl(
     override fun crawlSite(site: String, page: Int): Boolean {
 
         val link = site + page
-        val doc: Document = Jsoup.connect(link).get()
+        val doc: Document = Jsoup.parse(URL(link), 3000)
         val articles: List<Element> = doc.select("article")
 
         val albums: List<Album> = articles.stream().map(this::mapArticleToAlbum).toList()
@@ -48,9 +50,9 @@ class CrawlServiceImpl(
 
         val tags = tagService.findModelTags(0, size)
         if (tags.isNotEmpty()) {
-            logger.info("converting ${tags.size} tags")
             val models = tags.map { tag: Tag -> Model(name = tag.tag, url = tag.url) }.toList()
             modelService.saveAll(models)
+            logger.info("converted ${models.size} models")
 
             tags.forEach { tag: Tag -> tag.converted = true }
             tagService.saveAll(tags)
@@ -59,6 +61,34 @@ class CrawlServiceImpl(
         }
         logger.info("no tag to convert")
         return false
+    }
+
+    /**
+     * Crawl for model images.
+     */
+    override fun crawlForModelImage() {
+
+        val model = modelService.findModelForCrawling()
+        val url = model.url
+        val modelPage = Jsoup.parse(URL(url), 3000)
+        val articles: List<Element> = modelPage.select("article")
+
+        val images = articles.map { article ->
+            article.getElementsByTag("img").first()?.attr("src") ?: ""
+        }.toList()
+        model.images = images.filter(StringUtils::hasText)
+        model.numberOfAlbum = images.size
+
+        val relatedTags = articles.flatMap { article ->
+            article.getElementsByAttributeValue("rel", "tag")
+                .map { tag -> tag.html() }
+                .filter { tag -> model.name != tag }
+        }.toSet()
+        model.rel = relatedTags
+
+        model.needCrawl = false
+        modelService.save(model)
+        logger.info("successfully crawl images for model ${model.name}")
     }
 
     /**

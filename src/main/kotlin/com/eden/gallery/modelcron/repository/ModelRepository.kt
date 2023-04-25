@@ -10,4 +10,9 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 interface ModelRepository : MongoRepository<Model, ObjectId> {
+
+    /**
+     * Find a single model that need crawling.
+     */
+    fun findFirstByNeedCrawlIsTrue() : Model
 }

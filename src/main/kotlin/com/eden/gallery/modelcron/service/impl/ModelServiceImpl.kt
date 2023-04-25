@@ -46,4 +46,12 @@ class ModelServiceImpl(
         modelRepository.saveAll(models)
         return true
     }
+
+    /**
+     * Find a single model that need crawling.
+     */
+    override fun findModelForCrawling(): Model {
+
+        return modelRepository.findFirstByNeedCrawlIsTrue()
+    }
 }
