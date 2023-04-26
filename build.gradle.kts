@@ -43,7 +43,7 @@ jib {
         }
     }
     container {
-        mainClass = "${group}.gallery.ModelCronApplication"
+        mainClass = "${group}.modelcron.ModelCronApplication"
         ports = mutableListOf<String>("8080")
         environment = mapOf(
             "VERSION" to version,
