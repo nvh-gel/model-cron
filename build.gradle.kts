@@ -7,6 +7,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.spring") version "1.7.22"
+    id("com.google.cloud.tools.jib") version "3.3.1"
 }
 
 group = "com.eden.gallery"
@@ -27,10 +28,34 @@ repositories {
     mavenCentral()
 }
 
-version = "${versions["app"]}"
+val version: String = "${versions["app"]}"
+
+jib {
+    from {
+        image = "openjdk:17-slim"
+    }
+    to {
+        image = "nvhien2703/gallery-cron"
+        tags = mutableSetOf<String>(version, "latest")
+        auth {
+            username = System.getenv("DOCKER_USERNAME")
+            password = System.getenv("DOCKER_PASSWORD")
+        }
+    }
+    container {
+        mainClass = "${group}.gallery.ModelCronApplication"
+        ports = mutableListOf<String>("8080")
+        environment = mapOf(
+            "VERSION" to version,
+            "APPLICATION_PORT" to "8080",
+            "DEVELOPMENT_MODE" to "false"
+        )
+    }
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jsoup:jsoup:${versions["jsoup"]}")
