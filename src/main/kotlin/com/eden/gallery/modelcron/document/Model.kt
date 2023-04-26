@@ -27,5 +27,6 @@ class Model(
     var numberOfAlbum: Int = 0,
     var skip: Boolean = false,
     var needCrawl: Boolean = true,
+    var moved: Boolean = false,
 ) {
 }
