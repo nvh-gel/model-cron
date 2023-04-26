@@ -42,7 +42,7 @@ class CrawlingJob(
     /**
      * Crawl model images to database.
      */
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 12, timeUnit = TimeUnit.MINUTES)
     fun crawlModelImages() {
 
         logger.info("job crawl model images run at: ${LocalDateTime.now()}")
