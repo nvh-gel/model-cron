@@ -50,7 +50,7 @@ class ModelServiceImpl(
     /**
      * Find a single model that need crawling.
      */
-    override fun findModelForCrawling(): Model {
+    override fun findModelForCrawling(): Model? {
 
         return modelRepository.findFirstByNeedCrawlIsTrue()
     }

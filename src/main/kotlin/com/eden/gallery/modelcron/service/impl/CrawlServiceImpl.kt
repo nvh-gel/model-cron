@@ -69,6 +69,10 @@ class CrawlServiceImpl(
     override fun crawlForModelImage() {
 
         val model = modelService.findModelForCrawling()
+        if (null == model) {
+            logger.info("No model to crawl.")
+            return
+        }
         val url = model.url
         val modelPage = Jsoup.parse(URL(url), 3000)
         val articles: List<Element> = modelPage.select("article")

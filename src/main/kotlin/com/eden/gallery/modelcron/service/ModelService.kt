@@ -26,5 +26,5 @@ interface ModelService {
     /**
      * Find a single model that need crawling.
      */
-    fun findModelForCrawling(): Model
+    fun findModelForCrawling(): Model?
 }
