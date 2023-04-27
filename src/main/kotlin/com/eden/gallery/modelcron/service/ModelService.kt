@@ -21,7 +21,7 @@ interface ModelService {
     /**
      * Save multiple models.
      */
-    fun saveAll(models: List<Model>): Boolean
+    fun saveAll(models: List<Model>): Int
 
     /**
      * Find a single model that need crawling.

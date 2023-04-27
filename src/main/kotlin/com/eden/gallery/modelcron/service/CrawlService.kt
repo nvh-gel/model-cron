@@ -13,10 +13,10 @@ interface CrawlService {
     /**
      * Convert tags to models data.
      */
-    fun convertTagsToModels(size: Int): Boolean
+    fun convertTagsToModels(size: Int): Int
 
     /**
      * Crawl full list of model image.
      */
-    fun crawlForModelImage()
+    fun crawlForModelImage(): String?
 }

@@ -41,10 +41,9 @@ class ModelServiceImpl(
      * Save multiple models.
      */
     @Transactional(readOnly = true)
-    override fun saveAll(models: List<Model>): Boolean {
+    override fun saveAll(models: List<Model>): Int {
 
-        modelRepository.saveAll(models)
-        return true
+        return modelRepository.saveAll(models).size
     }
 
     /**

@@ -26,6 +26,13 @@ FileInputStream(file("versions.properties")).use {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/nvh-gel/registry")
+        credentials {
+            username = System.getenv("REGISTRY_USER")
+            password = System.getenv("REGISTRY_TOKEN")
+        }
+    }
 }
 
 val version: String = "${versions["app"]}"
@@ -54,6 +61,8 @@ jib {
 }
 
 dependencies {
+    implementation("com.eden:common-libs:${versions["common"]}")
+    implementation("com.eden:common-nosql:${versions["common"]}")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

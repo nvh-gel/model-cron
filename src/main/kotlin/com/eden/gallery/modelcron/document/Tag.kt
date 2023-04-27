@@ -1,24 +1,20 @@
 package com.eden.gallery.modelcron.document
 
+import com.eden.nosql.model.BaseDocument
 import org.bson.types.ObjectId
-import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import java.time.LocalDateTime
+import java.util.*
 
 /**
  * Data for tags.
  */
-@Suppress("unused")
 @Document
 class Tag(
-
-    @Id
-    val id: ObjectId = ObjectId(),
     val tag: String = "",
     val url: String = "",
-    val publisher: Boolean = false,
-    val category: Boolean = false,
     var converted: Boolean = false,
-) {
+) : BaseDocument(ObjectId.get(), UUID.randomUUID(), false, LocalDateTime.now(), LocalDateTime.now()) {
 
     /**
      * Compare two tags.

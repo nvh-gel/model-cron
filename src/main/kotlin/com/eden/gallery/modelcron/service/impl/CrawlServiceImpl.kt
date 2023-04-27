@@ -3,6 +3,8 @@ package com.eden.gallery.modelcron.service.impl
 import com.eden.gallery.modelcron.document.Album
 import com.eden.gallery.modelcron.document.Model
 import com.eden.gallery.modelcron.document.Tag
+import com.eden.gallery.modelcron.repository.CategoryRepository
+import com.eden.gallery.modelcron.repository.PublisherRepository
 import com.eden.gallery.modelcron.service.AlbumService
 import com.eden.gallery.modelcron.service.CrawlService
 import com.eden.gallery.modelcron.service.ModelService
@@ -13,6 +15,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.StringUtils
 import java.net.URL
 
@@ -24,6 +27,10 @@ class CrawlServiceImpl(
     @Autowired val albumService: AlbumService,
     @Autowired val tagService: TagService,
     @Autowired val modelService: ModelService,
+    @Autowired val publisherRepository: PublisherRepository,
+    @Autowired val categoryRepository: CategoryRepository,
+    private val publishers: List<String> = publisherRepository.findAll().map { p -> p.name }.toList(),
+    private val categories: List<String> = categoryRepository.findAll().map { c -> c.name }.toList(),
 ) : CrawlService, Logging {
 
     /**
@@ -46,33 +53,31 @@ class CrawlServiceImpl(
     /**
      * Convert crawled tags to models
      */
-    override fun convertTagsToModels(size: Int): Boolean {
+    @Transactional(readOnly = false)
+    override fun convertTagsToModels(size: Int): Int {
 
         val tags = tagService.findModelTags(0, size)
         if (tags.isNotEmpty()) {
-            val models = tags.map { tag: Tag -> Model(name = tag.tag, url = tag.url) }.toList()
-            modelService.saveAll(models)
-            logger.info("converted ${models.size} models")
+            val models = tags.parallelStream()
+                .filter { tag -> !publishers.contains(tag.tag) && !categories.contains(tag.tag) }
+                .map { tag: Tag -> Model(name = tag.tag, url = tag.url) }
+                .toList()
+            val result = modelService.saveAll(models)
 
             tags.forEach { tag: Tag -> tag.converted = true }
             tagService.saveAll(tags)
 
-            return true
+            return result
         }
-        logger.info("no tag to convert")
-        return false
+        return 0
     }
 
     /**
      * Crawl for model images.
      */
-    override fun crawlForModelImage() {
+    override fun crawlForModelImage(): String? {
 
-        val model = modelService.findModelForCrawling()
-        if (null == model) {
-            logger.info("No model to crawl.")
-            return
-        }
+        val model = modelService.findModelForCrawling() ?: return null
         val url = model.url
         val modelPage = Jsoup.parse(URL(url), 3000)
         val articles: List<Element> = modelPage.select("article")
@@ -80,7 +85,7 @@ class CrawlServiceImpl(
         val images = articles.map { article ->
             article.getElementsByTag("img").first()?.attr("src") ?: ""
         }.toList()
-        model.images = images.filter(StringUtils::hasText)
+        model.images = images.filter(StringUtils::hasText).toSet()
         model.numberOfAlbum = images.size
 
         val relatedTags = articles.flatMap { article ->
@@ -92,7 +97,7 @@ class CrawlServiceImpl(
 
         model.needCrawl = false
         modelService.save(model)
-        logger.info("successfully crawl images for model ${model.name}")
+        return model.name
     }
 
     /**
@@ -115,8 +120,8 @@ class CrawlServiceImpl(
         val name: String = link.html()
         val url: String = link.attr("href")
         val thumbnail: String = element.getElementsByTag("img").first()?.attr("src") ?: ""
-        val tags: List<String> = element.getElementsByAttributeValue("rel", "tag")
-            .map(Element::html)
+        val tags: Set<String> = element.getElementsByAttributeValue("rel", "tag")
+            .map(Element::html).toSet()
 
         return Album(name = name, url = url, thumbnail = thumbnail, tags = tags)
     }

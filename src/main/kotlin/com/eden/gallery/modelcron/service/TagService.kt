@@ -25,5 +25,5 @@ interface TagService {
     /**
      * Update a list of tags.
      */
-    fun saveAll(tags: List<Tag>): Boolean
+    fun saveAll(tags: List<Tag>): Int
 }

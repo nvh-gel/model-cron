@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 class TagServiceImpl(
-    @Autowired val tagRepository: TagRepository
+    @Autowired val tagRepository: TagRepository,
 ) : TagService, Logging {
 
     /**
@@ -56,10 +56,9 @@ class TagServiceImpl(
      * Update a list of tags.
      */
     @Transactional(readOnly = false)
-    override fun saveAll(tags: List<Tag>): Boolean {
+    override fun saveAll(tags: List<Tag>): Int {
 
-        tagRepository.saveAll(tags)
-        return true
+        return tagRepository.saveAll(tags).size
     }
 
     /**
@@ -68,8 +67,6 @@ class TagServiceImpl(
     override fun findModelTags(page: Int, size: Int): List<Tag> {
 
         val pageable = PageRequest.of(page, size, Sort.Direction.ASC, "id")
-        return tagRepository
-            .findAllByPublisherIsFalseAndCategoryIsFalseAndConvertedIsNot(true, pageable)
-            .toList()
+        return tagRepository.findAllByConvertedIsFalse(pageable).toList()
     }
 }

@@ -2,7 +2,6 @@ package com.eden.gallery.modelcron.repository
 
 import com.eden.gallery.modelcron.document.Tag
 import org.bson.types.ObjectId
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
@@ -24,7 +23,7 @@ interface TagRepository : MongoRepository<Tag, ObjectId> {
     fun findAllByTagIn(tags: List<String>): List<Tag>
 
     /**
-     * Find tags to convert to model.
+     * Find a list of unprocessed tags.
      */
-    fun findAllByPublisherIsFalseAndCategoryIsFalseAndConvertedIsNot(converted: Boolean, pageable: Pageable): Page<Tag>
+    fun findAllByConvertedIsFalse(pageable: Pageable): List<Tag>
 }
