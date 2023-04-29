@@ -1,6 +1,8 @@
 package com.eden.gallery.modelcron.cron
 
 import org.apache.logging.log4j.kotlin.Logging
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -10,10 +12,17 @@ import java.util.concurrent.TimeUnit
 /**
  * Cron to keep dev api alive.
  */
+@ConditionalOnProperty(
+    value = ["app.scheduling.enable"], havingValue = "true", matchIfMissing = true
+)
 @Component
-class KeepAliveJon : Logging {
-    val template: RestTemplate = RestTemplate()
+class KeepAliveJob(
+    @Autowired val template: RestTemplate
+) : Logging {
 
+    /**
+     * Job to keep staging api alive.
+     */
     @Scheduled(fixedRate = 14, timeUnit = TimeUnit.MINUTES)
     fun keepDevGalleryApiAlive() {
 
@@ -21,6 +30,9 @@ class KeepAliveJon : Logging {
         logger.info("job keep gallery dev api success at: ${LocalDateTime.now()}")
     }
 
+    /**
+     * Job to keep staging cron alive.
+     */
     @Scheduled(fixedRate = 14, timeUnit = TimeUnit.MINUTES)
     fun keepCronAlive() {
 

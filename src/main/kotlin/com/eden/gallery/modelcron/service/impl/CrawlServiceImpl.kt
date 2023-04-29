@@ -9,6 +9,7 @@ import com.eden.gallery.modelcron.service.AlbumService
 import com.eden.gallery.modelcron.service.CrawlService
 import com.eden.gallery.modelcron.service.ModelService
 import com.eden.gallery.modelcron.service.TagService
+import com.eden.gallery.modelcron.utils.ModelTag
 import org.apache.logging.log4j.kotlin.Logging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -75,6 +76,7 @@ class CrawlServiceImpl(
     /**
      * Crawl for model images.
      */
+    @Transactional(readOnly = true)
     override fun crawlForModelImage(): String? {
 
         val model = modelService.findModelForCrawling() ?: return null
@@ -89,10 +91,15 @@ class CrawlServiceImpl(
         model.numberOfAlbum = images.size
 
         val relatedTags = articles.flatMap { article ->
-            article.getElementsByAttributeValue("rel", "tag")
-                .map { tag -> tag.html() }
-                .filter { tag -> model.name != tag }
-        }.toSet()
+            article.getElementsByAttributeValue("rel", "tag").map { tag ->
+                ModelTag(
+                    name = tag.html(),
+                    url = tag.attr("href"),
+                    isPublisher = publishers.contains(tag.html()),
+                    isCategory = categories.contains(tag.html())
+                )
+            }
+        }.toSet().filter { tag -> model.name != tag.name }.toSet()
         model.rel = relatedTags
 
         model.needCrawl = false
