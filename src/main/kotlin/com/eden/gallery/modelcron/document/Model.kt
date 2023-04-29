@@ -1,5 +1,6 @@
 package com.eden.gallery.modelcron.document
 
+import com.eden.gallery.modelcron.utils.ModelTag
 import com.eden.nosql.model.BaseDocument
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.mapping.Document
@@ -15,7 +16,7 @@ class Model(
     val name: String,
     val url: String,
     var images: Set<String> = HashSet(),
-    var rel: Set<String> = HashSet(),
+    var rel: Set<ModelTag> = HashSet(),
     var fc: Int = 0,
     var bb: Int = 0,
     var wa: Int = 0,

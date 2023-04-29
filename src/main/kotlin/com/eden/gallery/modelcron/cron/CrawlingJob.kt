@@ -5,6 +5,7 @@ import com.eden.gallery.modelcron.service.CrawlService
 import com.eden.gallery.modelcron.utils.ConfigKey
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
@@ -14,6 +15,9 @@ import java.util.concurrent.TimeUnit
 /**
  * Crawling jobs for site mrcong.com
  */
+@ConditionalOnProperty(
+    value = ["app.scheduling.enable"], havingValue = "true", matchIfMissing = true
+)
 @Component
 class CrawlingJob(
     @Autowired val crawlService: CrawlService,
@@ -56,7 +60,7 @@ class CrawlingJob(
     /**
      * Crawl model images to database.
      */
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
     fun crawlModelImages() {
 
         logger.info("job crawl model images run at: ${LocalDateTime.now()}")
