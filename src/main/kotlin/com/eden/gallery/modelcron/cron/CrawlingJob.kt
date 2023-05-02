@@ -29,7 +29,7 @@ class CrawlingJob(
     /**
      * Crawl mrcong.com for data, run every 15 secs.
      */
-    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     fun crawlFullSize() {
 
         val page: Int = configService.findConfig(ConfigKey.CURR_PAGE.name)?.value?.toInt() ?: 0
@@ -50,7 +50,7 @@ class CrawlingJob(
     /**
      * Converted classify tags to model data.
      */
-    @Scheduled(fixedRate = 15, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
     fun convertTagToModel() {
         logger.info("job convert tags to model run at: ${LocalDateTime.now()}")
         val count = crawlService.convertTagsToModels(200)
@@ -60,7 +60,7 @@ class CrawlingJob(
     /**
      * Crawl model images to database.
      */
-    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     fun crawlModelImages() {
 
         logger.info("job crawl model images run at: ${LocalDateTime.now()}")
