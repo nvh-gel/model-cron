@@ -24,11 +24,22 @@ class KeepAliveJob(
      * Job to keep staging api alive.
      */
     @Scheduled(fixedRate = 14, timeUnit = TimeUnit.MINUTES)
-    fun keepDevGalleryApiAlive() {
+    fun keepStagingGalleryApiAlive() {
 
-        template.getForEntity("https://gallery-dev.onrender.com/healthz", String::class.java)
+        template.getForEntity("https://model-gallery-api-staging.onrender.com/healthz", String::class.java)
         logger.info("job keep gallery dev api success at: ${LocalDateTime.now()}")
     }
+
+    /**
+     * Job to keep staging api alive.
+     */
+    @Scheduled(fixedRate = 14, timeUnit = TimeUnit.MINUTES)
+    fun keepProdGalleryApiAlive() {
+
+        template.getForEntity("https://model-gallery-api.onrender.com/healthz", String::class.java)
+        logger.info("job keep gallery dev api success at: ${LocalDateTime.now()}")
+    }
+
 
     /**
      * Job to keep staging cron alive.
