@@ -1,5 +1,5 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://nvhien:ERFMrEbsCh64VIBh@dev.wsp5brd.mongodb.net/?retryWrites=true&w=majority
+      uri: ${MONGO_URI}
       database: gallery
