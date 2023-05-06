@@ -29,9 +29,8 @@ class CrawlingJob(
     /**
      * Crawl mrcong.com for data, run every 15 secs.
      */
-    @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedRate = 3, timeUnit = TimeUnit.HOURS)
     fun crawlFullSize() {
-
         val page: Int = configService.findConfig(ConfigKey.CURR_PAGE.name)?.value?.toInt() ?: 0
         logger.info("job craw full page run at: ${LocalDateTime.now()}")
         if (page > 0) {
@@ -62,7 +61,6 @@ class CrawlingJob(
      */
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     fun crawlModelImages() {
-
         logger.info("job crawl model images run at: ${LocalDateTime.now()}")
         val name = crawlService.crawlForModelImage()
         if (StringUtils.hasText(name)) {
@@ -70,5 +68,14 @@ class CrawlingJob(
         } else {
             logger.info("no model to crawl")
         }
+    }
+
+    /**
+     * Re-crawl models.
+     */
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
+    fun reCrawlModel() {
+        logger.info("job re-crawl new models run at ${LocalDateTime.now()}")
+        crawlService.reCrawlModels(site)
     }
 }

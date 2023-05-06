@@ -27,4 +27,9 @@ interface ModelService {
      * Find a single model that need crawling.
      */
     fun findModelForCrawling(): Model?
+
+    /**
+     * Find a list of models by names
+     */
+    fun findModelNameIn(names: List<String>): List<Model>
 }

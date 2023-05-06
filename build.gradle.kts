@@ -39,7 +39,7 @@ val version: String = "${versions["app"]}"
 
 jib {
     from {
-        image = "openjdk:17-slim"
+        image = "ibm-semeru-runtimes:open-17.0.6_10-jre"
     }
     to {
         image = "nvhien2703/gallery-cron"
