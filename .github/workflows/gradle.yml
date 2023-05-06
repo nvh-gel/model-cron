@@ -29,7 +29,7 @@ jobs:
       env:
         REGISTRY_USER: ${{secrets.REGISTRY_USER}}
         REGISTRY_TOKEN: ${{secrets.REGISTRY_TOKEN}}
-        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         MONGO_URI: ${{secrets.MONGO_URI}}
       with:
