@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.StringUtils
 import java.net.URL
+import java.time.LocalDateTime
 
 /**
  * Implementation for crawling service
@@ -38,7 +39,6 @@ class CrawlServiceImpl(
      * Crawl a site by page.
      */
     override fun crawlSite(site: String, page: Int): Boolean {
-
         val link = site + page
         val doc: Document = Jsoup.parse(URL(link), 3000)
         val articles: List<Element> = doc.select("article")
@@ -56,7 +56,6 @@ class CrawlServiceImpl(
      */
     @Transactional(readOnly = false)
     override fun convertTagsToModels(size: Int): Int {
-
         val tags = tagService.findModelTags(0, size)
         if (tags.isNotEmpty()) {
             val models = tags.parallelStream()
@@ -78,7 +77,6 @@ class CrawlServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun crawlForModelImage(): String? {
-
         val model = modelService.findModelForCrawling() ?: return null
         val url = model.url
         val modelPage = Jsoup.parse(URL(url), 3000)
@@ -107,6 +105,28 @@ class CrawlServiceImpl(
         return model.name
     }
 
+    @Transactional(readOnly = true)
+    override fun reCrawlModels(site: String) {
+        val pages = listOf(3, 2, 1)
+        val articles: List<Element> = pages.flatMap { page: Int ->
+            val link = site + page
+            val doc: Document = Jsoup.parse(URL(link), 3000)
+            doc.select("article")
+        }.toList()
+        val tags: Set<Tag> = articles
+            .flatMap { a: Element -> mapArticleToTags(a) }
+            .toSet()
+        val modelNames: List<String> = tags
+            .filter { t -> !publishers.contains(t.tag) && !categories.contains(t.tag) }
+            .map { t -> t.tag }
+        val models: List<Model> = modelService.findModelNameIn(modelNames)
+        models.forEach { m ->
+            m.needCrawl = true
+            m.updatedAt = LocalDateTime.now()
+        }
+        modelService.saveAll(models)
+    }
+
     /**
      * Convert an article to tags.
      */
@@ -120,7 +140,6 @@ class CrawlServiceImpl(
      * Convert an article to album.
      */
     private fun mapArticleToAlbum(element: Element): Album {
-
         val title: Element = element.getElementsByTag("h2")[0]
         val link: Element = title.getElementsByTag("a")[0]
 

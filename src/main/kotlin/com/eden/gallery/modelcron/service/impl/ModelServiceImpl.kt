@@ -22,7 +22,6 @@ class ModelServiceImpl(
      * Find all models by paging.
      */
     override fun findAll(page: Int, size: Int): Page<Model> {
-
         val pageable = PageRequest.of(page, size, Sort.Direction.ASC, "id")
         return modelRepository.findAll(pageable)
     }
@@ -32,9 +31,15 @@ class ModelServiceImpl(
      */
     @Transactional(readOnly = false)
     override fun save(model: Model): Boolean {
-
         modelRepository.save(model)
         return true
+    }
+
+    /**
+     * Find a list of models by names.
+     */
+    override fun findModelNameIn(names: List<String>): List<Model> {
+        return modelRepository.findAllByNameIn(names)
     }
 
     /**
@@ -42,7 +47,6 @@ class ModelServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun saveAll(models: List<Model>): Int {
-
         return modelRepository.saveAll(models).size
     }
 
@@ -50,7 +54,6 @@ class ModelServiceImpl(
      * Find a single model that need crawling.
      */
     override fun findModelForCrawling(): Model? {
-
         return modelRepository.findFirstByNeedCrawlIsTrue()
     }
 }

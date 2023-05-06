@@ -19,4 +19,9 @@ interface CrawlService {
      * Crawl full list of model image.
      */
     fun crawlForModelImage(): String?
+
+    /**
+     * Re-crawl site for new models.
+     */
+    fun reCrawlModels(site: String)
 }

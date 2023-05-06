@@ -15,4 +15,9 @@ interface ModelRepository : MongoRepository<Model, ObjectId> {
      * Find a single model that need crawling.
      */
     fun findFirstByNeedCrawlIsTrue() : Model?
+
+    /**
+     * Find a list of models by names in.
+     */
+    fun findAllByNameIn(names: List<String>): List<Model>
 }
