@@ -16,9 +16,7 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -28,5 +26,11 @@ jobs:
         distribution: 'temurin'
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      env:
+        REGISTRY_USER: ${{secrets.REGISTRY_USER}}
+        REGISTRY_TOKEN: ${{secrets.REGISTRY_TOKEN}}
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        MONGO_URI: ${{secrets.MONGO_URI}}
       with:
         arguments: 'build jib'
